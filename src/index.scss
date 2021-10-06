@@ -1,0 +1,22 @@
+body {
+  padding: 20px;
+}
+
+.form {
+  display: flex;
+  // flex-wrap: wrap;
+
+
+  .right-col {
+    display: flex;
+  }
+  .swap-currency {
+    align-self: end;
+  }
+}
+
+// @media only screen and (min-width: 500px) {
+//   .form {
+//     flex-wrap: nowrap;
+//   }
+// }

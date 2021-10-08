@@ -1,22 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa&family=Exo+2:wght@300&display=swap');
+
 body {
-  padding: 20px;
+  font-family: 'Exo 2', sans-serif !important;
+  background: #0f0f35 !important;
 }
 
-.form {
-  display: flex;
-  // flex-wrap: wrap;
-
-
-  .right-col {
-    display: flex;
-  }
-  .swap-currency {
-    align-self: end;
-  }
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Exo 2', sans-serif !important;
 }
-
-// @media only screen and (min-width: 500px) {
-//   .form {
-//     flex-wrap: nowrap;
-//   }
-// }

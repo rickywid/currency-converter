@@ -1,9 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { RiArrowLeftRightLine } from 'react-icons/ri';
 
 import {
-  Button,
   FormControl,
   FormLabel,
   Heading,
@@ -12,50 +11,68 @@ import {
   InputLeftElement,
   Select,
   Circle,
-  Container,
   Center,
   Box,
-  Text
+  Text,
+  Divider
 } from "@chakra-ui/react"
+import currencies, { ICurrency } from "./currencies";
+import { BASE_URL } from './const';
 
 function App() {
 
-  const inputEl = useRef<HTMLInputElement>(null);
-  // const [amount, setAmount] = useState<string>("");
-  const [toCurrency, setToCurrency] = useState<string>("");
-  const [fromCurrency, setFromCurrency] = useState<string>("");
-  const [isSubmitted, setSubmitted] = useState<boolean>(false);
+  const [amount, setAmount] = useState<string>("");
+  const [toCurrency, setToCurrency] = useState<string>("USD - US Dollar");
+  const [fromCurrency, setFromCurrency] = useState<string>("CAD - Canadian Dollar");
   const [currencyConversion, setCurrencyConversion] = useState<number>();
+  const [error, setError] = useState<string>("");
 
-  const handleFromCurrencyChange = (e: any) => {
-    console.log(e.target.value)
-    setFromCurrency(e.target.value)
-  };
+  useEffect(() => {
+    try {
+      validate();
+      getConversion();
+    } catch (e: any) {
+      setError(e);
+      setAmount("");
+    }
+  }, [amount, fromCurrency, toCurrency]);
 
-  const handleToCurrencyChange = (e: any) => {
-    setToCurrency(e.target.value)
-  };
+  const handleFromCurrencyChange = (e: any) => { setFromCurrency(e.target.value) };
 
-  // const handleInputChange = (e: any) => setAmount(e.target.value);
+  const handleToCurrencyChange = (e: any) => { setToCurrency(e.target.value) };
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    setSubmitted(true);
+  const handleInputChange = (e: any) => {
+    setError("");
+    setAmount(e.target.value);
+    getConversion();
+  }
 
-    const req = await fetch(`https://v6.exchangerate-api.com/v6/c86276d591904d18be400aa2/latest/${parseSelectOption(fromCurrency, true) || "CAD"}`);
-    const res = await req.json();
-    setCurrencyConversion(res.conversion_rates[parseSelectOption(toCurrency, true) || "USD"]);
-    setSubmitted(false);
+  const getConversion = async () => {
+    try {
+      const req = await fetch(`${BASE_URL}/${process.env.REACT_APP_API_KEY}/latest/${parseSelectOption(fromCurrency, true) || "CAD"}`);
+      const res = await req.json();
+      setCurrencyConversion(res.conversion_rates[parseSelectOption(toCurrency, true) || "USD"]);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   const parseSelectOption = (val: string, symbol: boolean) => {
-    console.log(val)
     if (!val) return;
     return symbol ? val.split("-")[0].trim() : val.split("-")[1].trim();
   }
 
+  const validate = () => {
+    const regex = /^\d*\.?\d*$/gm.test(amount);
+    if (!regex) { throw 'Please enter a valid amount' }
+  }
+
+  const switchCurrencies = () => {
+    setToCurrency(fromCurrency);
+    setFromCurrency(toCurrency);
+  }
+
   const displayConversion = () => {
-    const x = inputEl.current && inputEl.current.value as unknown as number;
     return (
       <Box>
         <Box marginBottom="5">
@@ -63,10 +80,10 @@ function App() {
             <Text
               fontWeight="bold"
               marginBottom="1"
-            >{inputEl.current && inputEl.current.value} {parseSelectOption(fromCurrency, false) || "Canadian Dollar"} = </Text>
+            >{amount} {parseSelectOption(fromCurrency, false) || "Canadian Dollar"} = </Text>
           </Box>
           <Box>
-            <Text fontWeight="bold" fontSize="25">{currencyConversion && currencyConversion * x!} {parseSelectOption(toCurrency, false) || "US Dollars"}</Text>
+            <Text fontWeight="bold" fontSize="25">{currencyConversion && Math.round(currencyConversion * (amount as unknown as number) * 100) / 100} {parseSelectOption(toCurrency, false) || "US Dollars"}</Text>
           </Box>
         </Box>
         <Box color="gray.500" fontSize="15">
@@ -80,103 +97,211 @@ function App() {
   }
 
   return (
-    <Container maxW="container.xl">
-      <Heading as="h1">CURRENCY CONVERTER</Heading>
-      <form action="" onSubmit={handleSubmit}>
+    <>
+      <Box
+        display="block"
+        boxSizing="border-box"
+        height="50vh"
+        background="linear-gradient(180deg, rgba(2,0,36,1) 0%, rgb(14 212 182) 68%)"
+        clipPath="ellipse(300% 100% at 185% 0%)"
+        className="animate__animated animate__fadeIn"
+      >
+      </Box>
+      <Box
+        position="relative"
+        marginTop={{ base: "-356px", md: "-270" }}
+        className="animate__animated animate__fadeIn"
+      >
+        <Heading
+          as="h6"
+          size="md"
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          textAlign="center"
+          color="white"
+        >CURRENCY CONVERTER</Heading>
         <Box
-          display={{
-            base: "initial",
-            md: "flex"
-          }}
+          display="flex"
+          justifyContent="center"
+          position="absolute"
+          left={0}
+          right={0}
+          top={35}
+          marginRight={{ base: "auto" }}
+          marginLeft={{ base: "auto" }}
+          width="10%"
         >
-          <Box
-            flex={1}
-            marginRight={{
-              base: 0,
-              md: 5
-            }}
-          >
-            <FormControl id="amount">
-              <FormLabel>Amount</FormLabel>
-              <InputGroup>
-                <InputLeftElement
-                  pointerEvents="none"
-                  color="gray.300"
-                  fontSize="1.2em"
-                  children="$"
-                />
-                <Input
-                  ref={inputEl}
-                  // onChange={handleInputChange}
-                  placeholder="Enter amount"
-                  required
-                />
-              </InputGroup>
-            </FormControl>
-          </Box>
-          <Box
-            display={{
-              base: "initial",
-              md: "flex"
-            }}
-            flex={2.1}
-          >
-            <FormControl id="from" marginRight={5}>
-              <FormLabel>From</FormLabel>
-              <InputGroup>
-                <Select
-                  defaultValue="CAD - Canadian Dollar"
-                  onChange={handleFromCurrencyChange}
-                >
-                  <option value="CAD - Canadian Dollar">🇨🇦 CAD - Canadian Dollar</option>
-                  <option value="GBP - British Pound">🇬🇧 GBP - British Pound</option>
-                  <option value="USD - US Dollar">🇺🇸 USD - US Dollar</option>
-                </Select>
-              </InputGroup>
-            </FormControl>
-
-            <div style={{ display: "flex", alignItems: "end", marginRight: 20 }}>
-              <Center>
-                <Circle size="40px" bg="tomato" color="white">
-                  <RiArrowLeftRightLine />
-                </Circle>
-              </Center>
-            </div>
-
-
-            <FormControl id="to">
-              <FormLabel>To</FormLabel>
-              <InputGroup>
-                <Select
-                  defaultValue="USD - US Dollar"
-                  onChange={handleToCurrencyChange}
-                >
-                  <option value="CAD - Canadian Dollar">🇨🇦 CAD - Canadian Dollar</option>
-                  <option value="GBP - British Pound">🇬🇧 GBP - British Pound</option>
-                  <option value="USD - US Dollar">🇺🇸 USD - US Dollar</option>
-                </Select>
-              </InputGroup>
-            </FormControl>
-          </Box>
+          <Center marginRight={1}>
+            <Circle
+              size="40px"
+              background="#029690"
+              borderBottom="3px solid #076460"
+              color="white"
+            >
+              &#xA3;
+          </Circle>
+          </Center>
+          <Center marginRight={1}>
+            <Circle
+              size="40px"
+              background="#029690"
+              borderBottom="3px solid #076460"
+              color="white"
+            >
+              &#x20AC;
+          </Circle>
+          </Center>
+          <Center marginRight={1}>
+            <Circle
+              size="40px"
+              background="#029690"
+              borderBottom="3px solid #076460"
+              color="white"
+            >
+              &#x24;
+          </Circle>
+          </Center>
+          <Center marginRight={1}>
+            <Circle
+              size="40px"
+              background="#029690"
+              borderBottom="3px solid #076460"
+              color="white"
+            >
+              &#xa5;
+          </Circle>
+          </Center>
         </Box>
-
-        <Button
-          colorScheme="blue"
-          type="submit"
-          mt={5}
-          mb={5}
-        >Convert</Button>
-      </form>
-
-
-      {displayConversion()}
-
-    </Container>
+        <Box
+          background="#ffffff"
+          boxShadow="-1px 12px 26px -8px rgb(255 255 255 / 75%)"
+          borderRadius={10}
+          marginRight={{ base: "auto" }}
+          marginLeft={{ base: "auto" }}
+          paddingTop={10}
+          paddingLeft={{ base: 10, md: 20 }}
+          paddingRight={{ base: 10, md: 20 }}
+          paddingBottom={{ base: 10, md: 20 }}
+          position="absolute"
+          width={{ base: "90%", md: "1200px" }}
+          left={0}
+          right={0}
+          top={117}
+        >
+          <Box>
+            <Box>
+              <Box
+                display={{
+                  base: "initial",
+                  md: "flex"
+                }}
+              >
+                <Box
+                  flex={1}
+                  marginRight={{
+                    base: 0,
+                    md: 5
+                  }}
+                  marginBottom={{
+                    base: 10,
+                    md: 0
+                  }}
+                >
+                  <FormControl id="amount">
+                    <FormLabel fontWeight="bold">Amount</FormLabel>
+                    <InputGroup>
+                      <InputLeftElement
+                        pointerEvents="none"
+                        color="gray.300"
+                        fontSize="1.2em"
+                      />
+                      <Input
+                        onChange={handleInputChange}
+                        placeholder="Enter amount"
+                        maxLength={8}
+                        boxShadow="md"
+                        required
+                      />
+                    </InputGroup>
+                  </FormControl>
+                  <Box color="#b30021">
+                    {error && <Text position="absolute" fontSize="14">{error}</Text>}
+                  </Box>
+                </Box>
+                <Box
+                  display={{
+                    base: "initial",
+                    md: "flex"
+                  }}
+                  flex={2.1}
+                >
+                  <FormControl
+                    id="from"
+                    marginRight={5}
+                    marginBottom={{
+                      base: 5,
+                      md: 0
+                    }}
+                  >
+                    <FormLabel fontWeight="bold">From</FormLabel>
+                    <InputGroup>
+                      <Select
+                        onChange={handleFromCurrencyChange}
+                        boxShadow="md"
+                        value={fromCurrency}
+                      >
+                        {currencies.map((currency: ICurrency, i: number) => <option key={i} value={currency.name}>{currency.flag} {currency.name}</option>)}
+                      </Select>
+                    </InputGroup>
+                  </FormControl>
+                  <Box
+                    display="flex"
+                    marginRight="5"
+                    alignItems="end"
+                    marginBottom={{
+                      base: 5,
+                      md: 0
+                    }}
+                  >
+                    <Center>
+                      <Circle
+                        size="40px"
+                        bg="cadetBlue"
+                        color="white"
+                        onClick={() => switchCurrencies()}
+                        _hover={{
+                          cursor: "pointer",
+                          background: "#3c6567"
+                        }}
+                      >
+                        <RiArrowLeftRightLine />
+                      </Circle>
+                    </Center>
+                  </Box>
+                  <FormControl id="to">
+                    <FormLabel fontWeight="bold">To</FormLabel>
+                    <InputGroup>
+                      <Select
+                        onChange={handleToCurrencyChange}
+                        boxShadow="md"
+                        value={toCurrency}
+                      >
+                        {currencies.map((currency: ICurrency, i: number) => <option key={i} value={currency.name}>{currency.flag} {currency.name}</option>)}
+                      </Select>
+                    </InputGroup>
+                  </FormControl>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+          <Divider marginTop="8" marginBottom="8" />
+          {displayConversion()}
+        </Box>
+      </Box>
+    </>
   );
 }
 
 export default App;
-
-/**
- * https://emojipedia.org/flags/
- */

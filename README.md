@@ -5,6 +5,8 @@ A currency converter is used to convert an amount in one currency to its corresp
 
 This my implementation of the currency converter using [React](https://reactjs.org/) to build the UI. Currency rates was provided by [exchangerate-api](exchangerate-api.com).
 
+**[Live Site](https://rickywid.github.io/currency-converter/)**
+
 ## Local Development
 
 Clone application:
@@ -20,4 +22,3 @@ Run application:
 `$ npm start`
 
 open *localhost:3000* in web browser
-

@@ -139,6 +139,7 @@ function App() {
               background="#029690"
               borderBottom="3px solid #076460"
               color="white"
+              fontWeight="bold"
             >
               &#xA3;
           </Circle>
@@ -149,6 +150,7 @@ function App() {
               background="#029690"
               borderBottom="3px solid #076460"
               color="white"
+              fontWeight="bold"
             >
               &#x20AC;
           </Circle>
@@ -159,6 +161,7 @@ function App() {
               background="#029690"
               borderBottom="3px solid #076460"
               color="white"
+              fontWeight="bold"
             >
               &#x24;
           </Circle>
@@ -169,6 +172,7 @@ function App() {
               background="#029690"
               borderBottom="3px solid #076460"
               color="white"
+              fontWeight="bold"
             >
               &#xa5;
           </Circle>

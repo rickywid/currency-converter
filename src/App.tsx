@@ -51,9 +51,14 @@ function App() {
     try {
       const req = await fetch(`${BASE_URL}/${process.env.REACT_APP_API_KEY}/latest/${parseSelectOption(fromCurrency, true) || "CAD"}`);
       const res = await req.json();
+
+      if(res.result === "error") {
+        throw Error(res["error-type"]);
+      };
+
       setCurrencyConversion(res.conversion_rates[parseSelectOption(toCurrency, true) || "USD"]);
     } catch (e) {
-      console.log(e);
+      setError(e.message);
     }
   }
 
